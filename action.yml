@@ -32,12 +32,13 @@ runs:
       run: |
         pip install "poetry==1.4.2"
         poetry config virtualenvs.create false
-        poetry install --no-interaction --no-ansi
+        poetry install -C "${{ github.action_path }}" --no-interaction --no-ansi
 
     - name: Generate discussions
       shell: bash
-      run: |
-        poetry run hugo-discuss
+      run: >
+        poetry run -C "${{ github.action_path }}"
+        hugo-discuss
         --owner ${{ inputs.owner }}
         --repo ${{ inputs.repo }}
         --token "${{ inputs.token }}"
