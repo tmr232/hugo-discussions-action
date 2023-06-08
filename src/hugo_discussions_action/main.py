@@ -4,6 +4,7 @@ import os
 import subprocess
 
 import frontmatter
+import rich
 import typer
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
@@ -202,12 +203,18 @@ def discuss_posts(hugo_root: str, client: Client, owner: str, repo: str, categor
         if post.metadata.get("discussAt"):
             continue
 
+        rich.print("Found post to discuss:" , post.metadata)
+
         discussion = discuss_post(post_info, client, owner, repo, category)
 
         post.metadata["discussAt"] = discussion.url
 
+        rich.print("Discussing at:", discussion.url)
+
         with open(post_path, "wb") as f:
             frontmatter.dump(post, f)
+
+            rich.print("Post updated with discussion at:", post_path)
 
 
 app = typer.Typer()
