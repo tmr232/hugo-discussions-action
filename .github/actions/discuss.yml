@@ -1,0 +1,45 @@
+name: 'Discuss Hugo Posts'
+description: 'Generate GitHub discussions for Hugo posts, and link them.'
+inputs:
+  hugo-root:
+    description: 'Root directory of Hugo blog'
+    required: false
+    default: '.'
+  owner:
+    description: "Repo owner"
+    required: false
+    default: ${{ github.repository_owner }}
+  repo:
+    description: "Name of repo holding discussions"
+    required: true
+  category:
+    description: "Slug of the category to create discussions under"
+    required: true
+  token:
+    description: "Auth token to use for authentication with the repo."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Installation (deps and package)
+      shell: bash
+      run: |
+        pip install "poetry==1.4.2"
+        poetry config virtualenvs.create false
+        poetry install --no-interaction --no-ansi
+
+    - name: Generate discussions
+      shell: bash
+      run: |
+        poetry run hugo-discuss
+        --owner ${{ inputs.owner }}
+        --repo ${{ inputs.repo }}
+        --token "${{ inputs.token }}"
+        --category "${{ inputs.category }}"
+        --hugo-root "${{ inputs.hugo-root }}"
